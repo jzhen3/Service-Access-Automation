@@ -16,15 +16,20 @@ def show_viz():
 
     d2 = st.dataframe(df2.iloc[1:])
 
-    st.header("Explore the Usage by Different Apps")
-    fig, ax = plt.subplots()
     draw_df = df[['app_name', 'team']]
     
-    apps = [i for i in df['app_name']]
-    app_count = draw_df.groupby('app_name')['team'].count().to_list()
 
-    # draw_df['app_count'] = draw_df.groupby('app_name')['team'].count()
+    app_team_counts = draw_df.groupby('team')['app_name'].count().reset_index()
+    app_team_counts.columns = ['Team_name', 'App Count']
 
-    plt.barh(y = apps, x= app_count, title='App Usage', width = 0.4)
+    st.header("Explore the Usage by Different Teams")
+    st.write("Bar graph displaying the number of apps by Teams:")
+
+    fig, ax = plt.subplots()
+
+    ax.bar(app_team_counts['Team_name'], app_team_counts['App Count'])
+    ax.set_xlabel("App")
+    ax.set_ylabel("Counts")
+    ax.set_title('Number of Apps by App Name')
     
-    plt.show()
+    st.pyplot(fig)

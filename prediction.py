@@ -17,7 +17,7 @@ def show_prediction():
     st.title("Service Access Classification")
     st.write("""### Type the employee's information""")
 
-    team = ('Build', 'Run')
+    team = ('Analytics', 'Engineering')
 
     job_Level = ('Intermediate', 'Intern', 'Junior')
 
@@ -55,7 +55,12 @@ def show_prediction():
         # return is an array
         label = clf.predict(X)[0]
         status = 'Approved' if label == 1 else 'Denied'
-        st.markdown(f"<font size='3'>The service request will be: </font><font size='5'>{status}</font>", unsafe_allow_html=True)
+        pred_proba = clf.predict_proba(X)
+        if pred_proba[0][1] >= 0.5:
+            prob = round(pred_proba[0][1], 2)
+        else:
+            prob = round(pred_proba[0][0], 2)
+        st.markdown(f"<font size='3'>The service request will be: </font><font size='5'>{status} rate: {prob}</font>", unsafe_allow_html=True)
 
     st.empty()
     st.empty()
@@ -65,8 +70,7 @@ def show_prediction():
     sheet_n = openpyxl.load_workbook('query.xlsx')['Sheet1']
     table2 = [r[1:] for r in sheet_n.iter_rows(values_only=True)]
     df2 = pd.DataFrame(data=table2, columns = cols)
-    q = df2[(df2['team'] == teams) & (df2['job_Level'] == job_Levels) &
-        (df2['job_Role'] ==job_Roles)]['app_name']
+    q = df2[(df2['team'] == teams) & (df2['job_Level'] == job_Levels) & (df2['job_Role'] ==job_Roles)]['app_name']
     
     if b2:
         st.markdown(f"<font size='3'>Historic Approved Services within specific group:\n\n</font><font size='5'>{list(q)[0]}</font>", unsafe_allow_html=True)
