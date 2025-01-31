@@ -4,32 +4,35 @@ import matplotlib.pyplot as plt
 import openpyxl
 
 def show_viz():
-    st.header("Explore the whole query")
-    sheet = openpyxl.load_workbook('dfs_unique.xlsx')['Sheet1']
-    table = [r[1:] for r in sheet.iter_rows(values_only=True)]
-    cols = ['team', 'job_Level', 'job_Role', 'app_name']
-    df = pd.DataFrame(data=table, columns = cols)
+    st.header("Explore the Whole Query")
+    sheet = openpyxl.load_workbook('employee_service_access_data.xlsx')['Sheet1']
+    table = [r for r in sheet.iter_rows(values_only=True)][1:]
+    cols = ['Team', 'Job Level', 'Job Role', 'Tool', 'Approval Status']
+    df = pd.DataFrame(data=table, columns = cols).reset_index()
 
-    sheet_n = openpyxl.load_workbook('query.xlsx')['Sheet1']
-    table2 = [r[1:] for r in sheet_n.iter_rows(values_only=True)]
-    df2 = pd.DataFrame(data=table2, columns = cols)
 
-    d2 = st.dataframe(df2.iloc[1:])
+    sheet2 = openpyxl.load_workbook('query.xlsx')['Sheet1']
+    table2 = [r for r in sheet2.iter_rows(values_only=True)][1:]
+    query_cols = ['Team', 'Job Level', 'Job Role', 'Tool']
+    df2 = pd.DataFrame(data=table2, columns = query_cols)
 
-    draw_df = df[['app_name', 'team']]
-    
+    df2 = st.dataframe(df2)
 
-    app_team_counts = draw_df.groupby('team')['app_name'].count().reset_index()
-    app_team_counts.columns = ['Team_name', 'App Count']
+    draw_df = df[['Tool', 'Job Role']]
+    app_counts = draw_df.groupby('Job Role')['Tool'].count().reset_index()
+    app_counts.columns = ['Job Role', 'App Count']
 
     st.header("Explore the Usage by Different Teams")
     st.write("Bar graph displaying the number of apps by Teams:")
 
     fig, ax = plt.subplots()
 
-    ax.bar(app_team_counts['Team_name'], app_team_counts['App Count'])
-    ax.set_xlabel("App")
+    ax.bar(app_counts['Job Role'], app_counts['App Count'])
+    ax.set_xlabel("Job Role")
+    for label in ax.get_xticklabels():
+        label.set_rotation(45)
+        label.set_ha('right')
     ax.set_ylabel("Counts")
-    ax.set_title('Number of Apps by App Name')
+    ax.set_title('Number of Apps by Different Job Roles')
     
     st.pyplot(fig)
